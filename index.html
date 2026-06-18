@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Мариночка Анатольевна, с юбилеем!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#5b3d49;
+      --soft:#745a67;
+      --accent:#c65e86;
+      --accent-dark:#a84a6e;
+      --gold:#d9a04f;
+      --glass:rgba(255,255,255,.82);
+      --glass-strong:rgba(255,255,255,.92);
+      --line:rgba(255,255,255,.76);
+      --shadow:0 26px 60px rgba(89,50,70,.16);
+      --shadow-soft:0 14px 28px rgba(89,50,70,.10);
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;}
+    body{
+      font-family:'Montserrat', Arial, sans-serif;
+      color:var(--ink);
+      background:linear-gradient(135deg,#fff6fa,#fffaf5 45%,#fbfff7);
+      overflow:hidden;
+    }
+
+    .start-screen{
+      position:fixed;
+      inset:0;
+      z-index:30;
+      display:grid;
+      place-items:center;
+      padding:20px;
+      background:
+        linear-gradient(rgba(255,247,250,.64), rgba(255,251,246,.68)),
+        url('assets/bg-peony.jpg') center/cover no-repeat;
+      transition:opacity .75s ease, visibility .75s ease, transform .75s ease;
+    }
+    body.opened .start-screen{
+      opacity:0;
+      visibility:hidden;
+      transform:scale(1.03);
+    }
+
+    .envelope{
+      width:min(760px, 100%);
+      border-radius:34px;
+      padding:clamp(24px, 4vw, 42px);
+      background:linear-gradient(135deg, rgba(255,255,255,.90), rgba(255,255,255,.78));
+      border:1px solid rgba(255,255,255,.92);
+      box-shadow:var(--shadow);
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+      backdrop-filter:blur(10px);
+    }
+    .envelope::before,
+    .envelope::after{
+      content:"";
+      position:absolute;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(233,170,194,.28), transparent 68%);
+      pointer-events:none;
+    }
+    .envelope::before{width:240px;height:240px;left:-70px;top:-80px}
+    .envelope::after{width:220px;height:220px;right:-65px;bottom:-75px}
+
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:14px;
+      padding:10px 16px;
+      border-radius:999px;
+      background:rgba(255,255,255,.86);
+      color:var(--accent-dark);
+      font-size:12px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .script-title{
+      margin:0 0 16px;
+      font-family:'Marck Script', cursive;
+      font-size:clamp(44px, 8vw, 82px);
+      line-height:.95;
+      color:var(--accent);
+    }
+    .envelope p{
+      margin:0 auto 26px;
+      max-width:580px;
+      line-height:1.75;
+      color:var(--soft);
+      font-size:clamp(15px, 2vw, 18px);
+    }
+
+    .btn{
+      appearance:none;
+      border:0;
+      border-radius:999px;
+      padding:15px 28px;
+      cursor:pointer;
+      color:#fff;
+      font-weight:800;
+      background:linear-gradient(135deg, var(--accent), var(--gold));
+      box-shadow:0 16px 30px rgba(198,94,134,.24);
+      transition:transform .22s ease, box-shadow .22s ease;
+    }
+    .btn:hover{transform:translateY(-2px);box-shadow:0 18px 34px rgba(198,94,134,.28)}
+
+    .presentation{
+      position:relative;
+      width:100%;
+      height:100vh;
+      opacity:.15;
+      transform:translateY(10px);
+      filter:blur(6px);
+      transition:opacity .75s ease, transform .75s ease, filter .75s ease;
+    }
+    body.opened .presentation{opacity:1;transform:none;filter:none}
+
+    .slide{
+      position:absolute;
+      inset:0;
+      padding:72px 24px 104px;
+      display:grid;
+      place-items:center;
+      opacity:0;
+      transform:translateX(24px) scale(.985);
+      transition:opacity .55s ease, transform .55s ease;
+      pointer-events:none;
+      isolation:isolate;
+      overflow:auto;
+    }
+    .slide.active{
+      opacity:1;
+      transform:translateX(0) scale(1);
+      pointer-events:auto;
+      z-index:2;
+    }
+    .slide::before,
+    .slide::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:-2;
+      pointer-events:none;
+    }
+    .slide::after{
+      z-index:-1;
+      background:linear-gradient(135deg, rgba(255,250,248,.82), rgba(255,249,252,.68) 42%, rgba(248,255,249,.72));
+    }
+    .slide.peony::before{background:url('assets/bg-peony.jpg') center/cover no-repeat; filter:blur(2px) saturate(1.12)}
+    .slide.dahlia::before{background:url('assets/bg-dahlia.jpg') center/cover no-repeat; filter:blur(2px) saturate(1.18)}
+
+    .card{
+      width:min(1220px, 100%);
+      border-radius:34px;
+      padding:clamp(20px, 2.8vw, 34px);
+      background:linear-gradient(135deg, rgba(255,255,255,.84), rgba(255,255,255,.72));
+      border:1px solid rgba(255,255,255,.82);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(12px);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:12px;
+      border-radius:24px;
+      border:1px solid rgba(255,255,255,.70);
+      pointer-events:none;
+    }
+    .card-content{position:relative;z-index:1}
+
+    .hero{
+      min-height:min(720px, calc(100vh - 190px));
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      gap:14px;
+    }
+    .hero h1,
+    .block h2{
+      margin:0;
+      font-family:'Marck Script', cursive;
+      color:var(--accent);
+      text-shadow:0 8px 16px rgba(198,94,134,.12);
+    }
+    .hero h1{font-size:clamp(52px, 8vw, 104px); line-height:.92;}
+    .block h2{font-size:clamp(34px, 5vw, 66px); line-height:1; margin-bottom:8px;}
+
+    .subtitle{
+      margin:0;
+      font-size:clamp(18px, 2vw, 25px);
+      font-weight:700;
+      color:var(--accent-dark);
+    }
+    .quote,
+    .text{
+      margin:0;
+      color:var(--soft);
+      line-height:1.8;
+    }
+    .quote{max-width:930px; font-size:clamp(18px, 2vw, 24px);}
+    .text{font-size:clamp(15px, 1.5vw, 20px)}
+
+    .layout{
+      min-height:min(720px, calc(100vh - 190px));
+      display:grid;
+      grid-template-columns:1.02fr 1fr;
+      gap:26px;
+      align-items:center;
+    }
+    .layout.reverse{grid-template-columns:1fr 1.02fr}
+
+    .text-box{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      padding:8px 6px;
+    }
+
+    .gallery{
+      display:grid;
+      gap:16px;
+      align-items:stretch;
+      grid-auto-rows:minmax(165px, auto);
+    }
+    .gallery--mosaic-a{
+      grid-template-columns:1.18fr .92fr;
+      grid-template-areas:
+        "a b"
+        "a c";
+    }
+    .gallery--mosaic-b{
+      grid-template-columns:1fr 1fr;
+      grid-template-areas:
+        "a a"
+        "b c";
+    }
+    .gallery--mosaic-c{
+      grid-template-columns:.9fr 1.1fr;
+      grid-template-areas:
+        "a c"
+        "b c";
+    }
+    .gallery--mosaic-d{
+      grid-template-columns:1.04fr .96fr;
+      grid-template-areas:
+        "a b"
+        "c b";
+    }
+    .gallery--mosaic-e{
+      grid-template-columns:1fr 1fr;
+      grid-template-areas:
+        "a b"
+        "a c";
+    }
+    .photo-card{
+      position:relative;
+      border-radius:24px;
+      overflow:visible;
+      min-height:0;
+      display:block;
+    }
+    .gallery .photo-card:nth-child(1){grid-area:a;}
+    .gallery .photo-card:nth-child(2){grid-area:b;}
+    .gallery .photo-card:nth-child(3){grid-area:c;}
+    .photo-card img{
+      width:100%;
+      height:100%;
+      min-height:250px;
+      object-fit:contain;
+      display:block;
+      border-radius:22px;
+      background:rgba(255,255,255,.98);
+      border:6px solid rgba(255,255,255,.98);
+      box-shadow:0 14px 28px rgba(95,61,75,.14);
+    }
+    .tag{
+      position:absolute;
+      left:12px;
+      bottom:12px;
+      display:inline-flex;
+      padding:7px 11px;
+      border-radius:999px;
+      background:rgba(255,255,255,.96);
+      color:var(--accent-dark);
+      font-size:12px;
+      font-weight:800;
+      box-shadow:0 8px 18px rgba(95,61,75,.10);
+    }
+
+    .signature{
+      display:inline-flex;
+      align-self:flex-start;
+      padding:10px 16px;
+      border-radius:16px;
+      background:rgba(255,255,255,.9);
+      color:var(--accent-dark);
+      font-weight:700;
+      box-shadow:var(--shadow-soft);
+    }
+    .final-message{
+      display:none;
+      padding:14px 16px;
+      border-radius:18px;
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(255,255,255,.95);
+      color:var(--soft);
+      line-height:1.7;
+      box-shadow:var(--shadow-soft);
+    }
+    .final-message.show{display:block}
+
+    .nav{
+      position:fixed;
+      left:50%;
+      bottom:max(14px, env(safe-area-inset-bottom));
+      transform:translateX(-50%);
+      z-index:10;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.80);
+      border:1px solid rgba(255,255,255,.9);
+      box-shadow:var(--shadow-soft);
+      backdrop-filter:blur(10px);
+    }
+    .nav button{
+      appearance:none;
+      border:0;
+      cursor:pointer;
+      border-radius:999px;
+      padding:11px 16px;
+      background:#fff;
+      color:var(--ink);
+      font-weight:800;
+      box-shadow:0 6px 14px rgba(95,61,75,.06);
+    }
+    .counter{
+      min-width:72px;
+      text-align:center;
+      color:var(--soft);
+      font-weight:700;
+    }
+    .hint{
+      position:fixed;
+      right:18px;
+      bottom:20px;
+      z-index:10;
+      color:rgba(91,61,73,.56);
+      font-size:12px;
+      font-weight:600;
+      background:rgba(255,255,255,.55);
+      padding:8px 10px;
+      border-radius:999px;
+      backdrop-filter:blur(6px);
+    }
+
+    @media (max-width: 1080px){
+      body{overflow:auto}
+      .presentation{height:auto;min-height:100vh}
+      .slide{position:relative;display:none;min-height:100vh;padding:68px 16px 96px}
+      .slide.active{display:grid}
+      .hero, .layout{min-height:auto}
+      .layout, .layout.reverse{grid-template-columns:1fr}
+      .hint{display:none}
+    }
+
+    @media (max-width: 760px){
+      .envelope{border-radius:28px;padding:26px 20px}
+      .slide{padding:58px 12px 94px}
+      .card{border-radius:26px;padding:18px}
+      .card::before{inset:9px;border-radius:18px}
+      .hero h1{font-size:58px}
+      .block h2{font-size:44px}
+      .gallery{grid-template-columns:1fr;grid-template-areas:none;gap:14px}
+      .gallery .photo-card:nth-child(1),
+      .gallery .photo-card:nth-child(2),
+      .gallery .photo-card:nth-child(3){grid-area:auto;}
+      .photo-card{min-height:unset}
+      .photo-card img{height:auto; min-height:0; max-height:360px; width:100%; object-fit:contain}
+      .nav{width:calc(100vw - 16px);justify-content:space-between;border-radius:22px;padding:10px}
+      .nav button{padding:11px 13px;font-size:14px}
+      .counter{min-width:auto;font-size:14px}
+      .text{font-size:16px}
+      .quote{font-size:18px}
+    }
+  </style>
+</head>
+<body>
+  <div class="start-screen">
+    <div class="envelope">
+      <div class="kicker">поздравительная открытка</div>
+      <h1 class="script-title">Для Марины</h1>
+      <p>Поздравление о дружбе, встречах, поездках и всех моментах, которые с годами становятся только дороже. Открывается и на телефоне, и на компьютере.</p>
+      <button class="btn" id="openBtn">Открыть поздравление</button>
+    </div>
+  </div>
+
+  <main class="presentation" aria-label="Поздравительная презентация">
+    <section class="slide active peony">
+      <div class="card">
+        <div class="card-content hero">
+          <div class="kicker">юбилей</div>
+          <h1>Мариночка Анатольевна, с юбилеем!</h1>
+          <p class="subtitle">И годы летят не угнаться... НО</p>
+          <p class="quote">С годами мы не стареем. Мы просто становимся выдержаннее, тоньше, ярче. Как хорошее вино, которое с каждым годом только лучше (бутылочка с моей днюхи настаивается:).</p>
+          <p class="text">Мариночка, спасибо за дружбу, в которой всегда много любви, тепла и душевности. Мы можем видеться нечасто, но это ничего не меняет — наши годы вместе давно стали чем-то очень ценным и очень родным.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide dahlia">
+      <div class="card">
+        <div class="card-content layout">
+          <div class="gallery gallery--mosaic-a">
+            <div class="photo-card"><img src="assets/s2_1.jpg" alt="Марина с букетом"><span class="tag">всегда восхитительна</span></div>
+            <div class="photo-card"><img src="assets/s2_2.jpg" alt="Марина с близкими"><span class="tag">родные рядом</span></div>
+            <div class="photo-card"><img src="assets/s2_3.jpg" alt="Две подруги вместе"><span class="tag">годы дружбы</span></div>
+          </div>
+          <div class="text-box block">
+            <div class="kicker">о дружбе</div>
+            <h2>Настоящее не рвётся</h2>
+            <p class="text">Есть дружба, которую не нужно всё время подтверждать. Она просто есть — спокойная, крепкая, близкая как дорога, по которой мы идём уже много лет.</p>
+            <p class="text">Вместе всегда легче и теплее. И даже если между встречами проходят месяцы, рядом с тобой всё равно ощущение одно: мы свои, мы рядом, мы всё понимаем.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide peony">
+      <div class="card">
+        <div class="card-content layout reverse">
+          <div class="text-box block">
+            <div class="kicker">наши встречи</div>
+            <h2>Праздники и тёплые вечера</h2>
+            <p class="text">Есть моменты, которые не нужно специально украшать — рядом с тобой они и так становятся красивыми. Праздники, разговоры, поездки и все наши встречи хранят то самое чувство близости.</p>
+            <p class="text">Ты умеешь делать атмосферу светлее — просто своим присутствием, улыбкой и внутренним теплом.</p>
+          </div>
+          <div class="gallery gallery--mosaic-b">
+            <div class="photo-card"><img src="assets/s3_1.jpg" alt="Подруги ночью в путешествии"><span class="tag">впечатления</span></div>
+            <div class="photo-card"><img src="assets/s3_2.jpg" alt="Подруги вместе дома"><span class="tag">душевно</span></div>
+            <div class="photo-card"><img src="assets/s3_3.jpg" alt="Праздничный стол и шампанское"><span class="tag">празднично</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide dahlia">
+      <div class="card">
+        <div class="card-content layout">
+          <div class="gallery gallery--mosaic-c">
+            <div class="photo-card"><img src="assets/s4_1.jpg" alt="Три подруги вместе"><span class="tag">нежность</span></div>
+            <div class="photo-card"><img src="assets/s4_2.jpg" alt="Подруги в сомбреро"><span class="tag">весело</span></div>
+            <div class="photo-card"><img src="assets/s4_3.jpg" alt="Подруги на празднике"><span class="tag">ярко</span></div>
+          </div>
+          <div class="text-box block">
+            <div class="kicker">смех и радость</div>
+            <h2>Лёгкость, которую так ценишь</h2>
+            <p class="text">С тобой всегда есть место и искренним разговорам, и весёлым историям, и таким фотографиям, на которые потом смотришь с улыбкой.</p>
+            <p class="text">Это редкий подарок — сохранять в дружбе и глубину, и лёгкость, и ту самую душевную свободу быть собой.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide peony">
+      <div class="card">
+        <div class="card-content layout reverse">
+          <div class="text-box block">
+            <div class="kicker">движение</div>
+            <h2>Энергия жизни</h2>
+            <p class="text">Наша дружба — это ещё и движение вперёд: общие события, активность, новые впечатления, поездки, яркие дни и умение радоваться жизни.</p>
+            <p class="text">Пусть и дальше у тебя будет много сил, вдохновения, лёгкости, интереса к новому и счастливых моментов рядом с теми, кто тебя любит.</p>
+          </div>
+          <div class="gallery gallery--mosaic-d">
+            <div class="photo-card"><img src="assets/s5_1.jpg" alt="На спортивном мероприятии"><span class="tag">энергия</span></div>
+            <div class="photo-card"><img src="assets/s5_2.jpg" alt="Участницы забега"><span class="tag">вместе</span></div>
+            <div class="photo-card"><img src="assets/s5_3.jpg" alt="Отдых в воде"><span class="tag">отдых</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide dahlia">
+      <div class="card">
+        <div class="card-content layout">
+          <div class="gallery gallery--mosaic-e">
+            <div class="photo-card"><img src="assets/s6_1.jpg" alt="Подруги в путешествии"><span class="tag">дороги</span></div>
+            <div class="photo-card"><img src="assets/s6_2.jpg" alt="Три подруги за столом"><span class="tag">вечера</span></div>
+            <div class="photo-card"><img src="assets/s6_3.jpg" alt="Совместный досуг"><span class="tag">интересно</span></div>
+          </div>
+          <div class="text-box block">
+            <div class="kicker">с любовью</div>
+            <h2>Для тебя — с теплом</h2>
+            <p class="text">Пусть впереди будет много красивых дней, ярких поводов для радости, хороших людей рядом и душевного спокойствия. Пусть всё важное складывается легко и счастливо.</p>
+            <p class="text">Оставайся такой же живой, красивой, тонкой, мудрой и настоящей. И пусть наша дружба дальше только крепнет.</p>
+            <div class="signature">С любовью Марине А. от Ирины Щ</div>
+            <button class="btn" id="finalBtn">Нажми на память</button>
+            <div class="final-message" id="finalMessage">С юбилеем, дорогая Марина! Пусть в жизни будет много любви, тепла, нежности, красивых событий и счастливых встреч.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="nav" aria-label="Навигация по слайдам">
+      <button id="prevBtn" type="button">← Назад</button>
+      <div class="counter"><span id="current">1</span> / <span id="total">6</span></div>
+      <button id="nextBtn" type="button">Вперёд →</button>
+    </div>
+    <div class="hint">Листать можно кнопками, стрелками клавиатуры и свайпом на телефоне</div>
+  </main>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const current = document.getElementById('current');
+    const total = document.getElementById('total');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const openBtn = document.getElementById('openBtn');
+    const finalBtn = document.getElementById('finalBtn');
+    const finalMessage = document.getElementById('finalMessage');
+    const presentation = document.querySelector('.presentation');
+    let index = 0;
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    total.textContent = slides.length;
+
+    function showSlide(nextIndex){
+      slides[index].classList.remove('active');
+      index = (nextIndex + slides.length) % slides.length;
+      slides[index].classList.add('active');
+      current.textContent = index + 1;
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    prevBtn.addEventListener('click', () => showSlide(index - 1));
+    nextBtn.addEventListener('click', () => showSlide(index + 1));
+
+    document.addEventListener('keydown', (event) => {
+      if(event.key === 'ArrowRight') showSlide(index + 1);
+      if(event.key === 'ArrowLeft') showSlide(index - 1);
+    });
+
+    openBtn.addEventListener('click', () => {
+      document.body.classList.add('opened');
+    });
+
+    finalBtn.addEventListener('click', () => {
+      finalMessage.classList.add('show');
+    });
+
+    presentation.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, {passive:true});
+
+    presentation.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      const delta = touchEndX - touchStartX;
+      if(Math.abs(delta) > 50){
+        if(delta < 0) showSlide(index + 1);
+        if(delta > 0) showSlide(index - 1);
+      }
+    }, {passive:true});
+  </script>
+</body>
+</html>
